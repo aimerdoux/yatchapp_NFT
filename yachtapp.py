@@ -2,13 +2,13 @@
 # Ensure you have the dependencies listed in requirements.txt installed.
 # pip install streamlit
 # pip install web3
-# pip install passkit-generator
+# pip install walletpass
 
 import streamlit as st
 import json
 from web3 import Web3
-from passkit_generator import PassGenerator
 import os
+from walletpass import Pass, PassField
 
 # Streamlit Interface
 def main():
@@ -35,7 +35,6 @@ def main():
             metadata = {
                 "name": event_name,
                 "description": f"Access to the exclusive {event_name}.",
-                "image": "Uploaded image will be linked",
                 "attributes": [
                     {"trait_type": "Event", "value": event_name},
                     {"trait_type": "Date", "value": str(event_date)},
@@ -72,33 +71,32 @@ def main():
 
             # Step 3: Generate Apple Wallet Pass
             try:
-                pass_gen = PassGenerator(
+                my_pass = Pass(
                     pass_type_identifier="pass.com.yourdomain.yacht",
-                    team_identifier="YOUR_TEAM_IDENTIFIER",
                     organization_name="Luxury Yacht Events",
-                    description="Exclusive Yacht Event Ticket",
-                    label_color="#FFD700",
-                    foreground_color="#FFFFFF",
-                    background_color="#003366"
+                    team_identifier="YOUR_TEAM_IDENTIFIER",
                 )
 
-                pass_gen.add_field("event", "Event", event_name)
-                pass_gen.add_field("location", "Location", event_location)
-                pass_gen.add_field("date", "Date", str(event_date))
-                pass_gen.add_qr_code(qr_code_data)
+                my_pass.add_field(PassField(key="event", label="Event", value=event_name))
+                my_pass.add_field(PassField(key="location", label="Location", value=event_location))
+                my_pass.add_field(PassField(key="date", label="Date", value=str(event_date)))
 
+                # QR Code
+                my_pass.add_barcode(message=qr_code_data, format="PKBarcodeFormatQR")
+
+                # Add Image (if uploaded)
                 if image_file:
-                    pass_gen.add_image(image_file.getvalue(), "thumbnail")
+                    my_pass.add_image(image_file.getvalue(), "thumbnail")
 
-                pass_file = pass_gen.create_pass(serial_number="12345")
-
-                with open("LuxuryYachtEvent.pkpass", "wb") as f:
-                    f.write(pass_file)
+                # Generate and Save the Pass
+                pass_file_path = "LuxuryYachtEvent.pkpass"
+                with open(pass_file_path, "wb") as f:
+                    f.write(my_pass.create())
 
                 st.success("Apple Wallet Pass Created Successfully! Download below:")
                 st.download_button(
                     label="Download Pass", 
-                    data=pass_file, 
+                    data=open(pass_file_path, "rb").read(), 
                     file_name="LuxuryYachtEvent.pkpass", 
                     mime="application/vnd.apple.pkpass"
                 )

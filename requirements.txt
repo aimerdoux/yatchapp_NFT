@@ -1,0 +1,5 @@
+streamlit
+web3
+passkit-generator
+ethers.js
+fs (built-in Node.js module)

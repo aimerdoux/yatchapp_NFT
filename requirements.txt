@@ -1,3 +1,3 @@
 streamlit
 web3
-walletpass
+passkit

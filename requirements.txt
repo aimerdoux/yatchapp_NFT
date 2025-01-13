@@ -1,3 +1,5 @@
 streamlit
-web3
-passkit
+web3 
+pillow 
+qrcode
+passkit-python

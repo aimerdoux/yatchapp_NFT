@@ -2,13 +2,13 @@
 # Ensure you have the dependencies listed in requirements.txt installed.
 # pip install streamlit
 # pip install web3
-# pip install walletpass
+# pip install passkit
 
 import streamlit as st
 import json
 from web3 import Web3
 import os
-from walletpass import Pass, PassField
+from passkit import Pass, Barcode, Field
 
 # Streamlit Interface
 def main():
@@ -72,21 +72,21 @@ def main():
             # Step 3: Generate Apple Wallet Pass
             try:
                 my_pass = Pass(
-                    pass_type_identifier="pass.com.yourdomain.yacht",
-                    organization_name="Luxury Yacht Events",
-                    team_identifier="YOUR_TEAM_IDENTIFIER",
+                    passTypeIdentifier="pass.com.yourdomain.yacht",
+                    organizationName="Luxury Yacht Events",
+                    teamIdentifier="YOUR_TEAM_IDENTIFIER"
                 )
 
-                my_pass.add_field(PassField(key="event", label="Event", value=event_name))
-                my_pass.add_field(PassField(key="location", label="Location", value=event_location))
-                my_pass.add_field(PassField(key="date", label="Date", value=str(event_date)))
+                my_pass.addField(Field("event", event_name, "Event"))
+                my_pass.addField(Field("location", event_location, "Location"))
+                my_pass.addField(Field("date", str(event_date), "Date"))
 
                 # QR Code
-                my_pass.add_barcode(message=qr_code_data, format="PKBarcodeFormatQR")
+                my_pass.barcode = Barcode(message=qr_code_data, format=Barcode.QR)
 
                 # Add Image (if uploaded)
                 if image_file:
-                    my_pass.add_image(image_file.getvalue(), "thumbnail")
+                    my_pass.addFile("thumbnail.png", image_file.getvalue())
 
                 # Generate and Save the Pass
                 pass_file_path = "LuxuryYachtEvent.pkpass"
